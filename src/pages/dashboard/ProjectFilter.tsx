@@ -12,7 +12,7 @@ const filterList = [
     return category.value;
   }),
 ];
-console.log(filterList);
+// console.log(filterList);
 
 const ProjectFilter = (props: IProjectFilterProps) => {
   const { currentFilter, changeFilter } = props;
