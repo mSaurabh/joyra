@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { projectAuth } from "../firebase/config";
+import {
+  projectAuth,
+  projectFirestore,
+  projectStorage,
+} from "../firebase/config";
+import { FCOLL } from "../firebase/firebase.props";
 import { AUTHDISPATCH } from "../interfaces/DataInterfaces";
 import { useAuthContext } from "./useAuthContext";
 
@@ -15,7 +20,8 @@ const useSignup = () => {
     email: string,
     password: string,
     displayName: string,
-    captcha: string
+    thumbnail: File,
+    captcha?: string
   ) => {
     setIsPending(true);
     setError("");
@@ -36,8 +42,32 @@ const useSignup = () => {
           throw new Error("Could not signup the user.");
         }
 
-        // add display name to user
-        await res.user?.updateProfile({ displayName: displayName });
+        // upload user thumbnail
+        let imgUrl = "";
+        if (thumbnail) {
+          const uploadPath = `thumbnails/${res.user?.uid}/${thumbnail?.name}`;
+          const img = await projectStorage.ref(uploadPath).put(thumbnail);
+          imgUrl = await img.ref.getDownloadURL();
+        }
+
+        // add display name & image url to user
+        await res.user?.updateProfile({
+          displayName: displayName,
+          photoURL: imgUrl,
+        });
+
+        // create a user document
+
+        await projectFirestore.collection(FCOLL.USERS).doc(res.user?.uid).set(
+          {
+            id: res.user?.uid,
+            photoURL: imgUrl,
+            displayName,
+            online: true,
+            createdAt: new Date(),
+          },
+          { merge: true }
+        );
 
         // dispatch login action
         dispatch({ type: AUTHDISPATCH.LOGIN, payload: res.user });

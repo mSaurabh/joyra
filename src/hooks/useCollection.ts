@@ -4,8 +4,7 @@ import { FCOLL } from "../firebase/firebase.props";
 
 export const useCollection = (
   cName: FCOLL,
-  deleted?: boolean,
-  _query?: [string, firebase.default.firestore.WhereFilterOp, string],
+  _query?: [string, firebase.default.firestore.WhereFilterOp, string | boolean],
   _orderBy?: [string, firebase.default.firestore.OrderByDirection]
 ) => {
   const [documents, setDocuments] = useState<any[]>([]);
@@ -18,9 +17,7 @@ export const useCollection = (
   const query = useRef(_query).current;
   const orderBy = useRef(_orderBy).current;
   useEffect(() => {
-    let ref = projectFirestore
-      .collection(cName)
-      .where("isDeleted", "==", deleted ? true : false);
+    let ref = projectFirestore.collection(cName);
 
     if (query) {
       //@ts-ignore

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { projectAuth } from "../firebase/config";
+import { projectAuth, projectFirestore } from "../firebase/config";
+import { FCOLL } from "../firebase/firebase.props";
 import { AUTHDISPATCH } from "../interfaces/DataInterfaces";
 import { useAuthContext } from "./useAuthContext";
 
@@ -20,6 +21,13 @@ export const useLogin = () => {
       }
       const res = await projectAuth.signInWithEmailAndPassword(email, password);
 
+      // user is now online
+      const uid = res.user?.uid;
+      await projectFirestore
+        .collection(FCOLL.USERS)
+        .doc(uid)
+        .update({ online: true });
+
       // dispatch login action
       dispatch({ type: AUTHDISPATCH.LOGIN, payload: res.user });
 
@@ -39,7 +47,7 @@ export const useLogin = () => {
 
   useEffect(() => {
     return () => {
-      console.log("Cleanup useLogin");
+      // console.log("Cleanup useLogin");
       setIsCancelled(true);
     };
   }, []);

@@ -48,6 +48,13 @@ const firestoreReducer = (state: any, action: any) => {
         success: false,
         error: action.payload,
       };
+    case FIREACT.UPDATED_DOCUMENT:
+      return {
+        isPending: false,
+        document: action.payload,
+        success: true,
+        error: null,
+      };
     default:
       return state;
   }
@@ -73,11 +80,19 @@ export const useFirestore = (cName: FCOLL) => {
     try {
       const createdAt = timestamp.fromDate(new Date());
 
-      const addedDocument = await ref.add({
-        ...doc,
-        createdAt,
-        isDeleted: false,
-      });
+      let addedDocument;
+      if (cName === FCOLL.TRANSACTIONS || cName === FCOLL.PROJECTS) {
+        addedDocument = await ref.add({
+          ...doc,
+          createdAt,
+          isDeleted: false,
+        });
+      } else {
+        addedDocument = await ref.add({
+          ...doc,
+          createdAt,
+        });
+      }
 
       dispatchIfNotCancelled({
         type: FIREACT.ADDED_DOCUMENT,
@@ -122,6 +137,25 @@ export const useFirestore = (cName: FCOLL) => {
     }
   };
 
+  // update document
+  const updateDocument = async (id: string, updates: any) => {
+    dispatch({ type: "IS_PENDING" });
+    try {
+      const updatedDocument = await ref.doc(id).update(updates);
+      dispatchIfNotCancelled({
+        type: FIREACT.UPDATED_DOCUMENT,
+        payload: updatedDocument,
+      });
+      return updatedDocument;
+    } catch (error: any) {
+      console.log(error.message);
+      dispatchIfNotCancelled({
+        type: FIREACT.ERROR,
+        payload: error.message,
+      });
+    }
+  };
+
   const hardDelete = async (id: string) => {
     await ref.doc(id).delete();
   };
@@ -131,5 +165,12 @@ export const useFirestore = (cName: FCOLL) => {
     return () => setIsCancelled(true);
   }, []);
 
-  return { addDocument, deleteDocument, hardDelete, restoreDocument, response };
+  return {
+    addDocument,
+    deleteDocument,
+    hardDelete,
+    restoreDocument,
+    updateDocument,
+    response,
+  };
 };

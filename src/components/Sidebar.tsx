@@ -2,6 +2,8 @@ import { NavLink } from "react-router-dom";
 // styles & images
 import AddIcon from "../assets/add_icon.svg";
 import DashboardIcon from "../assets/dashboard_icon.svg";
+import { useAuthContext } from "../hooks/useAuthContext";
+import Avatar from "./Avatar";
 import "./Sidebar.css";
 
 const iconSize = 25;
@@ -9,12 +11,13 @@ const iconSize = 25;
 interface ISidebarProps {}
 //https://randomized-avatar-api.herokuapp.com/getRandomAvatar
 const Sidebar = (props: ISidebarProps) => {
+  const { user } = useAuthContext();
   return (
     <div className="sidebar">
       <div className="sidebar-content">
         <div className="user">
-          {/* avatar & username here later */}
-          <p>Hey user</p>
+          <Avatar src={user?.photoURL} />
+          <p>Hey {user?.displayName || "there"}</p>
         </div>
         <nav className="links">
           <ul>

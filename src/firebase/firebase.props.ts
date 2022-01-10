@@ -1,5 +1,7 @@
 export enum FCOLL {
   "TRANSACTIONS" = "transactions",
+  "USERS" = "users",
+  "PROJECTS" = "projects",
 }
 
 export enum FIREACT {
@@ -9,4 +11,5 @@ export enum FIREACT {
   "SOFT_DELETED_DOCUMENT" = "DELETED_DOCUMENT",
   "HARD_DELETE_DOCUMENT" = "HARD_DELETE_DOCUMENT",
   "RESTORE_DOCUMENT" = "RESTORE_DOCUMENT",
+  "UPDATED_DOCUMENT" = "UPDATED_DOCUMENT",
 }
